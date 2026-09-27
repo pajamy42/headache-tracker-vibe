@@ -6,24 +6,10 @@
   <meta name="theme-color" content="#090d16">
   <title>Migraine Diary</title>
 
-  <!-- Complete Web App Manifest with Embedded App Icon -->
-  <link rel="manifest" href='data:application/manifest+json;utf8,{
-    "name": "Migraine Diary",
-    "short_name": "Diary",
-    "start_url": "./",
-    "scope": "./",
-    "display": "standalone",
-    "background_color": "#090d16",
-    "theme_color": "#090d16",
-    "icons": [
-      {
-        "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%27128%27 fill=%27%234f46e5%27/%3E%3Cpath d=%27M256 120v272M120 256h272%27 stroke=%27%23ffffff%27 stroke-width=%2748%27 stroke-linecap=%27round%27/%3E%3C/svg%3E",
-        "sizes": "512x512",
-        "type": "image/svg+xml",
-        "purpose": "any maskable"
-      }
-    ]
-  }'>
+  <!-- Proper Web App Manifest & Favicon -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/192/822/822143.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/192/822/822143.png">
 
   <!-- React & Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -32,17 +18,13 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Inline Service Worker for Standalone WebAPK Installation -->
+  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        const swBlob = new Blob([
-          `self.addEventListener('install', (e) => self.skipWaiting());
-           self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
-           self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));`
-        ], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob))
-          .catch((err) => console.log('SW registration note:', err));
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW registered successfully'))
+          .catch(err => console.log('SW registration failed:', err));
       });
     }
   </script>
