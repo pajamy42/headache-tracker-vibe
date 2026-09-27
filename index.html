@@ -6,8 +6,24 @@
   <meta name="theme-color" content="#090d16">
   <title>Migraine Diary</title>
 
-  <!-- Web App Manifest for Standalone Install -->
-  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Migraine%20Diary%22%2C%22short_name%22%3A%22Diary%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23090d16%22%2C%22theme_color%22%3A%22%23090d16%22%7D">
+  <!-- Complete Web App Manifest with Embedded App Icon -->
+  <link rel="manifest" href='data:application/manifest+json;utf8,{
+    "name": "Migraine Diary",
+    "short_name": "Diary",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#090d16",
+    "theme_color": "#090d16",
+    "icons": [
+      {
+        "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%27128%27 fill=%27%234f46e5%27/%3E%3Cpath d=%27M256 120v272M120 256h272%27 stroke=%27%23ffffff%27 stroke-width=%2748%27 stroke-linecap=%27round%27/%3E%3C/svg%3E",
+        "sizes": "512x512",
+        "type": "image/svg+xml",
+        "purpose": "any maskable"
+      }
+    ]
+  }'>
 
   <!-- React & Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -15,6 +31,21 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inline Service Worker for Standalone WebAPK Installation -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swBlob = new Blob([
+          `self.addEventListener('install', (e) => self.skipWaiting());
+           self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+           self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));`
+        ], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+          .catch((err) => console.log('SW registration note:', err));
+      });
+    }
+  </script>
 </head>
 <body class="bg-[#090d16] text-slate-200 antialiased min-h-screen selection:bg-indigo-500 selection:text-white">
   <div id="root"></div>
@@ -36,7 +67,7 @@
         nausea: false,
         lightSensitivity: false,
         movementDependent: false,
-        medCategory: 'triptan', // 'none' | 'triptan' | 'nsaid' | 'other'
+        medCategory: 'triptan',
         medication: '',
         notes: ''
       };
@@ -79,7 +110,6 @@
         }
       };
 
-      // 30-day rolling calculations
       const stats = useMemo(() => {
         const now = new Date();
         const thirtyDaysAgo = new Date();
@@ -126,7 +156,6 @@
         document.body.removeChild(link);
       };
 
-      // Calendar helpers
       const year = currentMonth.getFullYear();
       const month = currentMonth.getMonth();
       const firstDayOfMonth = new Date(year, month, 1).getDay();
@@ -135,8 +164,6 @@
 
       return (
         <div class="max-w-md mx-auto p-4 pb-24 text-slate-300">
-          
-          {/* Header */}
           <header class="flex items-center justify-between mb-5 border-b border-slate-800 pb-3">
             <div>
               <h1 class="text-xl font-bold text-slate-100 tracking-tight">Migraine Diary</h1>
@@ -159,9 +186,7 @@
             </div>
           </header>
 
-          {/* 30-Day Metrics Bar */}
           <section class="grid grid-cols-2 gap-2.5 mb-5">
-            {/* Attack Count */}
             <div class="bg-slate-900/80 border border-slate-800/80 rounded-xl p-3">
               <span class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold block mb-1">
                 Attacks (30d)
@@ -180,7 +205,6 @@
               </span>
             </div>
 
-            {/* Triptan / Med Overuse Count */}
             <div class={`bg-slate-900/80 border rounded-xl p-3 ${
               stats.triptanDays >= 10 ? 'border-rose-900/50 bg-rose-950/10' : 'border-slate-800/80'
             }`}>
@@ -202,7 +226,6 @@
             </div>
           </section>
 
-          {/* View Switcher */}
           <div class="flex rounded-lg bg-slate-900 border border-slate-800 p-0.5 mb-4 text-xs font-medium">
             <button 
               onClick={() => setView('list')}
@@ -218,7 +241,6 @@
             </button>
           </div>
 
-          {/* Form Modal */}
           {showForm && (
             <div class="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div class="bg-[#111726] border border-slate-800 rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -317,7 +339,6 @@
                     </div>
                   )}
 
-                  {/* Medication Category for Overuse Tracking */}
                   <div>
                     <label class="block text-slate-400 font-medium mb-1">Medication Category (MOH Tracking)</label>
                     <div class="grid grid-cols-4 gap-1 mb-2">
@@ -382,7 +403,6 @@
             </div>
           )}
 
-          {/* List View */}
           {view === 'list' && (
             <div class="space-y-2">
               {entries.length === 0 ? (
@@ -450,7 +470,6 @@
             </div>
           )}
 
-          {/* Calendar View */}
           {view === 'calendar' && (
             <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3">
               <div class="flex items-center justify-between mb-3">
