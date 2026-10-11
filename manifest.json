@@ -3,8 +3,8 @@
   "short_name": "Diary",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#090d16",
-  "theme_color": "#090d16",
+  "background_color": "#0a0912",
+  "theme_color": "#0a0912",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/822/822143.png",
